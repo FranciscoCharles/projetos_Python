@@ -1,6 +1,8 @@
 import sys
 from PyQt5 import QtWidgets
-
+'''
+	version : 1.0.14112019
+'''
 class Screen1(QtWidgets.QMainWindow):
 
 	def __init__(self,name) :

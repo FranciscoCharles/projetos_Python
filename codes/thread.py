@@ -2,7 +2,7 @@ from PyQt5 import QtCore
 
 '''
 
-	version : 1.0.13112019
+	version : 1.0.14112019
 	
 	informação:
 	
