@@ -1,6 +1,6 @@
 # Descrição:
 
-	dentro da pasta _codes_ temos os seguintes codigos.
+	dentro da pasta *codes temos os seguintes codigos.
 
 * **screen.py** :
 
