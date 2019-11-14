@@ -1,9 +1,8 @@
-from PyQt5 import QtGui,QtCore
+from PyQt5 import QtCore
 
 '''
 
-	creation date : 26/10/2019
-	version : 1.0.12112019-beta
+	version : 1.0.13112019
 	
 	informação:
 	
@@ -16,9 +15,10 @@ from PyQt5 import QtGui,QtCore
 		This module implements a Qt thread handler. The goal is
 	to make it easier to use since thread creation, execution and
 	termination. There are no sync functions at this time.
+	
 '''
 
-class ThreadExec(QtCore.QThread):
+class QtThreadWorker(QtCore.QThread):
 	
 	def __init__(self, target, args = None, name=''):
 	
@@ -42,14 +42,26 @@ class ThreadExec(QtCore.QThread):
 		else:
 			self.__target(*self.__args)
 				
-class ThreadManager(object):
+class QtThreadManager(object):
 	'''
 		This class handles Qt thread.
 	'''
 	def __init__(self, list_threads):
-	
-		self.list_threads = list_threads
-		self.__name = 0
+		if isinstance(list_threads,list):
+			self.__threads = list_threads
+			self.__name = 0
+		else:
+			raise TypeError('list_threads is not list object.')
+			
+	def __len__(self):
+		return len(self.__threads)
+		
+	def countThreadRunning():
+		count = 0
+		for thread in self.__threads:
+				if thread.isRunning():
+					count += 1
+		return count
 		
 	def addThread(self,target, args=None, name=None):
 	
@@ -58,60 +70,39 @@ class ThreadManager(object):
 		else:
 			thread = ThreadExec(target=target, args=args, name=name)
 			
-		self.list_threads.append(thread)
+		self.__threads.append(thread)
 		self.__name += 1
-		
 		return thread
 		
-	def removeAllThreads(self):
+	def getThread(self, key):
 	
-		for thread in self.list_threads:
-			if thread.isRunning():
-				thread.finished.disconnect()
-				thread.terminate()
-					
-		self.list_threads.clear()
-		
-	def removeThreadName(self, name):
-	
-		for thread in self.list_threads:
-			if thread.name == name:
-				if thread.isRunning():
-					thread.finished.disconnect()
-					thread.terminate()
-				self.list_threads.remove(thread)
-				
-	def removeThreadIndex(self, index):
-	
-		if self.list_threads[index].isRunning():
-			self.list_threads[index].finished.disconnect()
-			self.list_threads[index].terminate()
+		compare = None
+		if isinstance(key,int):
+			_len = len(self.__threads)
+			if -_len <= key < _len:
+				return self.__threads[key]
+		elif isinstance(key,ThreadExec):
+			compare = lambda _thread: _thread is key
+		elif isinstance(key,str):
+			compare = lambda _thread: _thread.name == key
 			
-		self.list_threads.remove(index)
-				
-	def removeThread(self, current_thread):
-	
-		for thread in self.list_threads:
-			if thread is current_thread:
+		if compare is not None:
+			for thread in self.__threads:
+				if compare(thread):
+					return thread
+		return None
+		
+	def removeThread(self, key=None, all=False):
+		if all == True:
+			for thread in self.__threads:
 				if thread.isRunning():
 					thread.finished.disconnect()
 					thread.terminate()
-				self.list_threads.remove(thread)
-				
-	def getThreadName(self, name):
-	
-		for thread in self.list_threads:
-			if thread.name == name:
-				return thread
-		return None
-				
-	def getThreadIndex(self, index):
-		return self.list_threads[index]
-		
-	def getThread(self, current_thread):
-	
-		for thread in self.list_threads:
-			if thread is current_thread:
-				return thread
-				
-		return None	
+			self.__threads.clear()
+		else:
+			thread = self.getThread(key)
+			if thread is not None:
+				if thread.isRunning():
+					thread.finished.disconnect()
+					thread.terminate()
+				self.__threads.remove(thread)
