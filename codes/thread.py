@@ -23,17 +23,9 @@ class QtThreadWorker(QtCore.QThread):
 	def __init__(self, target, args = None, name=''):
 	
 		QtCore.QThread.__init__(self)
-		self.__name = name
+		self.name = name
 		self.__target = target
 		self.__args = args
-		
-	@property
-	def name(self):
-		return self.__name
-		
-	@name.setter
-	def name(self, new_name):
-		self.__name = new_name
 		
 	def run(self):
 	
@@ -67,11 +59,11 @@ class QtThreadManager(object):
 	
 		if name is None:
 			thread = ThreadExec(target=target, args=args, name='thread-'+str(self.__name))
+			self.__name += 1
 		else:
 			thread = ThreadExec(target=target, args=args, name=name)
 			
 		self.__threads.append(thread)
-		self.__name += 1
 		return thread
 		
 	def getThread(self, key):
